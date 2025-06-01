@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="card shadow-sm p-4">
+    <h2 class="mb-3">Serve <strong>{{ meal.name }}</strong></h2>
+
+    <p class="lead">Maximum portions you can serve: <strong>{{ portions }}</strong></p>
+
+    <form method="post" class="mt-4">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="serve_quantity" class="form-label">Enter portions to serve:</label>
+        <input 
+          type="number" 
+          class="form-control w-25" 
+          id="serve_quantity" 
+          name="serve_quantity" 
+          min="1" 
+          max="{{ portions }}" 
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-2">Serve Meal</button>
+      <a href="{% url 'meal_list' %}" class="btn btn-secondary mt-2 ms-2">Back to Meals</a>
+    </form>
+
+    {% if messages %}
+      <div class="mt-4">
+        {% for message in messages %}
+          <div 
+            class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-secondary{% endif %}" 
+            role="alert"
+          >
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  .font-roboto { font-family: 'Roboto', sans-serif; }
+</style>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-100 font-roboto px-4">
+  <div class="w-full max-w-sm bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
+      <i class="fas fa-user-circle mr-2 text-indigo-500"></i> User Profile
+    </h2>
+
+    <ul class="space-y-3 text-sm text-gray-700">
+      <li><strong>Username:</strong> {{ request.user.username }}</li>
+      <li><strong>Email:</strong> {{ request.user.email }}</li>
+      <li><strong>First Name:</strong> {{ request.user.first_name }}</li>
+      <li><strong>Last Name:</strong> {{ request.user.last_name }}</li>
+      <li><strong>Role:</strong> {{ profile.role }}</li>
+    </ul>
+
+    <div class="flex justify-center gap-4 mt-6">
+      <a href="{% url 'edit_user' user.id %}"
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm shadow inline-flex items-center">
+        <i class="fas fa-edit mr-1"></i> Edit
+      </a>
+      <a href="{% url 'dashboard' %}"
+         class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded text-sm shadow inline-flex items-center">
+        <i class="fas fa-arrow-left mr-1"></i> Dashboard
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5 max-w-4xl mx-auto">
+  <h1 class="text-2xl font-bold mb-6">Delivery History</h1>
+
+    <div class="flex justify-end mb-4">
+    <a href="{% url 'create_delivery' %}"
+        class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-1.5 rounded shadow transition">
+        <i class="fas fa-plus mr-2"></i> Create Delivery
+    </a>
+    </div>
+
+  {% if deliveries %}
+    <div class="overflow-x-auto bg-white rounded shadow">
+      <table class="min-w-full text-sm text-left text-gray-700">
+        <thead class="bg-gray-100 text-sm uppercase text-gray-600">
+          <tr>
+            <th class="px-4 py-3">Ingredient</th>
+            <th class="px-4 py-3">Quantity (g)</th>
+            <th class="px-4 py-3">Delivered By</th>
+            <th class="px-4 py-3">Date & Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for delivery in deliveries %}
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-3">{{ delivery.ingredient.name }}</td>
+              <td class="px-4 py-3">{{ delivery.quantity }}</td>
+              <td class="px-4 py-3">{{ delivery.delivered_by.username }}</td>
+              <td class="px-4 py-3">{{ delivery.delivered_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-gray-500">No deliveries recorded yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5" style="max-width: 720px;">
+  <h2 class="mb-4 text-primary fw-semibold">📦 Record Ingredient Delivery</h2>
+
+  <form method="post" novalidate class="bg-white p-4 border rounded shadow-sm">
+    {% csrf_token %}
+
+    <div id="ingredient-formset">
+      <div class="row g-3 align-items-end ingredient-group mb-3 border-bottom pb-3">
+        <div class="col-8">
+          <label for="ingredient_0" class="form-label fw-medium">Ingredient</label>
+          <select name="ingredient_0" id="ingredient_0" class="form-select" required>
+            <option value="" selected disabled>Select ingredient</option>
+            {% for ingredient in ingredients %}
+              <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-4">
+          <label for="quantity_0" class="form-label fw-medium">Quantity (g)</label>
+          <input type="number" name="quantity_0" id="quantity_0" class="form-control" step="0.01" min="0.01" required>
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" name="form-TOTAL_FORMS" id="total-forms" value="1" />
+
+    <button type="button" id="add-ingredient-btn" class="btn btn-outline-primary mb-4">
+      + Add More Ingredients
+    </button>
+
+    <div class="d-flex justify-between flex-wrap gap-3">
+      <a href="{% url 'delivery_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Cancel
+      </a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-check me-1"></i> Submit Delivery
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Dynamic Row Logic -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    let formIndex = 1;
+    const formset = document.getElementById('ingredient-formset');
+    const totalFormsInput = document.getElementById('total-forms');
+    const addBtn = document.getElementById('add-ingredient-btn');
+
+    const ingredientOptions = `
+      {% for ingredient in ingredients %}
+        <option value="{{ ingredient.id }}">{{ ingredient.name|escapejs }}</option>
+      {% endfor %}
+    `;
+
+    addBtn.addEventListener('click', () => {
+      const group = document.createElement('div');
+      group.className = 'row g-3 align-items-end ingredient-group mb-3 border-bottom pb-3';
+
+      group.innerHTML = `
+        <div class="col-8">
+          <label for="ingredient_${formIndex}" class="form-label fw-medium">Ingredient</label>
+          <select name="ingredient_${formIndex}" id="ingredient_${formIndex}" class="form-select" required>
+            <option value="" selected disabled>Select ingredient</option>
+            ${ingredientOptions}
+          </select>
+        </div>
+        <div class="col-3">
+          <label for="quantity_${formIndex}" class="form-label fw-medium">Quantity (g)</label>
+          <input type="number" name="quantity_${formIndex}" id="quantity_${formIndex}" class="form-control" step="0.01" min="0.01" required>
+        </div>
+        <div class="col-1 d-flex align-items-end">
+          <button type="button" class="btn btn-outline-danger btn-sm remove-btn" aria-label="Remove">&times;</button>
+        </div>
+      `;
+
+      formset.appendChild(group);
+
+      group.querySelector('.remove-btn').addEventListener('click', () => {
+        group.remove();
+        updateTotalForms();
+      });
+
+      formIndex++;
+      updateTotalForms();
+    });
+
+    function updateTotalForms() {
+      totalFormsInput.value = formset.querySelectorAll('.ingredient-group').length;
+    }
+  });
+</script>
+
+<!-- Duplicate Ingredient Check -->
+<script>
+  document.addEventListener('change', function (e) {
+    if (e.target.matches('select[name^="ingredient_"]')) {
+      const selects = document.querySelectorAll('select[name^="ingredient_"]');
+      const selectedValues = [];
+
+      selects.forEach((select) => {
+        const value = select.value;
+        if (value && selectedValues.includes(value)) {
+          alert('This ingredient is already selected. Please choose a different one.');
+          select.value = '';
+        } else if (value) {
+          selectedValues.push(value);
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

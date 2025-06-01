@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8 font-roboto">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+    <h1 class="text-3xl font-semibold text-gray-800">Ingredients</h1>
+    {% if user.profile.role == 'admin' or user.profile.role == 'manager' %}
+    <div class="flex flex-wrap gap-3">
+      <a href="{% url 'create_ingredient' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow text-sm">
+        <i class="fas fa-plus mr-1"></i> Create Ingredient
+      </a>
+      <a href="{% url 'create_delivery' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow text-sm">
+        <i class="fas fa-truck-loading mr-1"></i> Create Delivery
+      </a>
+    </div>
+    {% endif %}
+  </div>
+  <form method="get" class="mb-6 w-full sm:max-w-md flex gap-2">
+    <!-- Input with clear button inside -->
+    <div class="relative flex-1">
+      <input type="text" name="q" value="{{ query }}"
+            id="search-input"
+            class="w-full h-10 text-sm px-4 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Search ingredients..." />
+
+      <button type="button"
+              id="clear-btn"
+              class="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+              style="display: none;"
+              onclick="const input = document.getElementById('search-input'); input.value=''; this.style.display='none'; input.form.submit();">
+        <i class="fas fa-times-circle text-base"></i>
+      </button>
+    </div>
+
+    <!-- Submit button -->
+    <button type="submit"
+            class="h-10 px-4 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-sm flex items-center">
+      <i class="fas fa-search mr-1"></i> Search
+    </button>
+  </form>
+
+  <!-- Table -->
+  <div class="overflow-x-auto rounded-lg shadow-md bg-white">
+    <table class="min-w-full text-sm text-left text-gray-700">
+      <thead class="bg-gray-100 text-gray-800 text-sm uppercase tracking-wide">
+        <tr>
+          <th class="px-6 py-3">Name</th>
+          <th class="px-6 py-3">Stock (g)</th>
+          <th class="px-6 py-3">Threshold (g)</th>
+          {% if user.profile.role == 'admin' or user.profile.role == 'manager' %}
+          <th class="px-6 py-3">Action</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for ingredient in ingredients %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-6 py-4">{{ ingredient.name }}</td>
+          <td class="px-6 py-4">{{ ingredient.stock_quantity }}</td>
+          <td class="px-6 py-4 {% if ingredient.stock_quantity <= ingredient.treshold_quantity %}text-red-600 font-semibold{% endif %}">
+            {{ ingredient.treshold_quantity }}
+          </td>
+          {% if user.profile.role == 'admin' or user.profile.role == 'manager' %}
+          <td class="px-6 py-4">
+            <a href="{% url 'update_ingredient' ingredient.id %}"
+               class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-xs font-medium mr-2">
+              <i class="fas fa-edit mr-1"></i> Update
+            </a>
+            <a href="{% url 'delete_ingredient' ingredient.id %}"
+               class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium">
+              <i class="fas fa-trash-alt mr-1"></i> Delete
+            </a>
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center px-6 py-4 text-gray-500 italic">No ingredients available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Back Button -->
+  <div class="mt-6">
+    <a href="{% url 'meal_list' %}" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded shadow">
+      <i class="fas fa-arrow-left mr-1"></i> Back to Meal List
+    </a>
+  </div>
+</div>
+
+<script>
+  const input = document.getElementById('search-input');
+  const clearBtn = document.getElementById('clear-btn');
+
+  function toggleClearButton() {
+    clearBtn.style.display = input.value ? 'block' : 'none';
+  }
+
+  input.addEventListener('input', toggleClearButton);
+  window.addEventListener('DOMContentLoaded', toggleClearButton);
+</script>
+
+
+
+{% endblock %}

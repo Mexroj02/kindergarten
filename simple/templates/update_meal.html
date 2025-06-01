@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Edit {{ meal.name }}</h1>
+
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        <!-- Meal form (e.g., name) -->
+        {% if form.errors %}
+            <div class="text-red-600 text-sm mb-4">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        {{ error }}<br>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        {{ form.as_p }}
+
+        <!-- Ingredients section -->
+        <div id="ingredients-wrapper" class="space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800">Ingredients</h2>
+            {% for existing in existing_ingredients %}
+                <div class="ingredient-row flex space-x-4 items-center" role="group" aria-label="Ingredient entry">
+                    <select name="ingredients" class="form-control border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">Select ingredient</option>
+                        {% for ingredient in ingredients %}
+                            <option value="{{ ingredient.id }}" {% if ingredient.id == existing.ingredient.id %}selected{% endif %}>
+                                {{ ingredient.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="quantities" min="0.01" step="0.01" value="{{ existing.quantity }}" placeholder="Quantity" class="form-control border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500" required>
+                    <button type="button" class="remove-ingredient bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow" onclick="removeIngredient(this)">Remove</button>
+                </div>
+            {% empty %}
+                <div class="ingredient-row flex space-x-4 items-center" role="group" aria-label="Ingredient entry">
+                    <select name="ingredients" class="form-control border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">Select ingredient</option>
+                        {% for ingredient in ingredients %}
+                            <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="quantities" min="0.01" step="0.01" placeholder="Quantity" class="form-control border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500" required>
+                    <button type="button" class="remove-ingredient bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow" onclick="removeIngredient(this)">Remove</button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" id="add-ingredient-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">Add Ingredient</button>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow mt-4">Save Changes</button>
+        <a href="{% url 'meal_list' %}" class="text-blue-600 hover:underline ml-4">Cancel</a>
+    </form>
+</div>
+
+<script>
+    const addBtn = document.getElementById('add-ingredient-btn');
+    const wrapper = document.getElementById('ingredients-wrapper');
+
+    addBtn.addEventListener('click', () => {
+        const newRow = document.createElement('div');
+        newRow.classList.add('ingredient-row', 'flex', 'space-x-4', 'items-center');
+        newRow.setAttribute('role', 'group');
+        newRow.setAttribute('aria-label', 'Ingredient entry');
+        newRow.innerHTML = `
+            <select name="ingredients" class="form-control border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500" required>
+                <option value="">Select ingredient</option>
+                {% for ingredient in ingredients %}
+                    <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="quantities" min="0.01" step="0.01" placeholder="Quantity" class="form-control border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500" required>
+            <button type="button" class="remove-ingredient bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow" onclick="removeIngredient(this)">Remove</button>
+        `;
+        wrapper.appendChild(newRow);
+    });
+
+    function removeIngredient(button) {
+        button.parentElement.remove();
+    }
+</script>
+{% endblock %}
